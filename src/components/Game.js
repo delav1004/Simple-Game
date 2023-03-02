@@ -6,11 +6,11 @@ import {View, Text, StyleSheet} from 'react-native';
 import RandomNumber from './RandomNumber';
 
 class Game extends React.Component {
-  static PropTypes = {
+  static propTypes = {
     randomNumberCount: PropTypes.number.isRequired,
   };
   state = {
-    selectedNumbers: [],
+    selectedIds: [],
   };
   randomNumbers = Array.from({length: this.props.randomNumberCount}).map(
     () => 1 + Math.floor(10 * Math.random()),
@@ -20,16 +20,33 @@ class Game extends React.Component {
     .reduce((acc, curr) => acc + curr, 0);
 
   isNumberSelected = numberIndex => {
-    return this.state.selectedNumbers.indexOf(numberIndex) >= 0;
+    return this.state.selectedIds.indexOf(numberIndex) >= 0;
   };
 
   selectNumber = numberIndex => {
     this.setState(prevState => ({
-      selectedNumbers: [...prevState.selectedNumbers, numberIndex],
+      selectedIds: [...prevState.selectedIds, numberIndex],
     }));
   };
 
+  gameStatus = () => {
+    const sumSelected = this.state.selectedIds.reduce((acc, curr) => {
+      return acc + this.randomNumbers[curr];
+    }, 0);
+    if (sumSelected < this.target) {
+      return 'PLAYING';
+    }
+    if (sumSelected === this.target) {
+      return 'WON';
+    }
+    if (sumSelected > this.target) {
+      return 'LOST';
+    }
+    // console.log(sumSelected);
+  };
+
   render() {
+    const gameStatus = this.gameStatus();
     return (
       <View style={styles.container}>
         <Text style={styles.target}>{this.target}</Text>
@@ -44,6 +61,7 @@ class Game extends React.Component {
             />
           ))}
         </View>
+        <Text>{gameStatus}</Text>
       </View>
     );
   }
